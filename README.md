@@ -1,1 +1,1 @@
-# -PandaSharp.Azure.Pipelines
+# PandaSharp.Azure.Pipelines
