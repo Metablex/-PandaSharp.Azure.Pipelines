@@ -11,8 +11,10 @@ namespace PandaSharp.AzureDevOps.Services.Build
         public void RegisterModule(IPandaContainer container)
         {
             container.RegisterType<IGetAllBuildsRequest, GetAllBuildsRequest>();
+            container.RegisterType<IGetBuildByIdRequest, GetBuildByIdRequest>();
             container.RegisterType<IBuildRequestBuilderFactory, BuildRequestBuilderFactory>();
             container.RegisterType<IGetAllBuildsParameterAspect, GetAllBuildsParameterAspect>();
+            container.RegisterType<IGetBuildByIdParameterAspect, GetBuildByIdParameterAspect>();
         }
     }
 }

@@ -227,5 +227,14 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Aspect
             _restRequestMock.Verify(i => i.AddQueryParameter("requestedFor", "Chuck Norris"), Times.Once);
             _restRequestMock.VerifyNoOtherCalls();
         }
+        
+        [Test]
+        public void DefaultParameterAspectTest()
+        {
+            var aspect = new GetAllBuildsParameterAspect();
+            aspect.ApplyToRestRequest(_restRequestMock.Object);
+
+            _restRequestMock.VerifyNoOtherCalls();
+        }
     }
 }
