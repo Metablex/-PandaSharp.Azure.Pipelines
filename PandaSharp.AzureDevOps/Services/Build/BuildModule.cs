@@ -12,6 +12,7 @@ namespace PandaSharp.AzureDevOps.Services.Build
         {
             container.RegisterType<IGetAllBuildsRequest, GetAllBuildsRequest>();
             container.RegisterType<IGetBuildByIdRequest, GetBuildByIdRequest>();
+            container.RegisterType<IDeleteBuildByIdCommand, DeleteBuildByIdCommand>();
             container.RegisterType<IBuildRequestBuilderFactory, BuildRequestBuilderFactory>();
             container.RegisterType<IGetAllBuildsParameterAspect, GetAllBuildsParameterAspect>();
             container.RegisterType<IGetBuildByIdParameterAspect, GetBuildByIdParameterAspect>();

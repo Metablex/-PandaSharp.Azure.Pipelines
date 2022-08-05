@@ -7,5 +7,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Factory
         IGetAllBuildsRequest GetAllBuilds();
 
         IGetBuildByIdRequest GetBuildById(int buildId);
+
+        IDeleteBuildByIdCommand DeleteBuildById(int buildId);
     }
 }

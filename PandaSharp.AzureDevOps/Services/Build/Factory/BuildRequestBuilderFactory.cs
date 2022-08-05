@@ -23,5 +23,11 @@ namespace PandaSharp.AzureDevOps.Services.Build.Factory
             return _container.Resolve<IGetBuildByIdRequest>(
                 new InjectProperty(RequestPropertyNames.BuildId, buildId));
         }
+
+        public IDeleteBuildByIdCommand DeleteBuildById(int buildId)
+        {
+            return _container.Resolve<IDeleteBuildByIdCommand>(
+                new InjectProperty(RequestPropertyNames.BuildId, buildId));
+        }
     }
 }

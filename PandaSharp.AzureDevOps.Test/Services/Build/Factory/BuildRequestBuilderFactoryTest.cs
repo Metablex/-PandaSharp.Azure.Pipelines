@@ -40,5 +40,23 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Factory
             containerMock.Verify();
             containerMock.VerifyNoOtherCalls();
         }
+        
+        [Test]
+        public void DeleteBuildByIdTest()
+        {
+            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IDeleteBuildByIdCommand>(
+                parameters =>
+                {
+                    parameters.Length.ShouldBe(1);
+                    parameters.ShouldContain(p => p.PropertyName == RequestPropertyNames.BuildId && p.PropertyValue.Equals(666));
+                });
+            
+            var factory = new BuildRequestBuilderFactory(containerMock.Object);
+            var request = factory.DeleteBuildById(666);
+            request.ShouldNotBeNull();
+
+            containerMock.Verify();
+            containerMock.VerifyNoOtherCalls();
+        }
     }
 }
