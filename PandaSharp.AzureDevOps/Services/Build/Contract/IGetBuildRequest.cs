@@ -3,8 +3,8 @@ using PandaSharp.Framework.Services.Contract;
 
 namespace PandaSharp.AzureDevOps.Services.Build.Contract
 {
-    public interface IGetBuildByIdRequest : IRequestBase<BuildResponse>
+    public interface IGetBuildRequest : IRequestBase<BuildResponse>
     {
-        IGetBuildByIdRequest WithPropertiesFilter(string propertiesFilter);
+        IGetBuildRequest WithPropertiesFilter(string propertiesFilter);
     }
 }

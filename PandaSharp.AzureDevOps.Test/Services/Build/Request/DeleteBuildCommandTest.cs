@@ -12,14 +12,14 @@ using Shouldly;
 namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
 {
     [TestFixture]
-    public sealed class DeleteBuildByIdCommandTest
+    public sealed class DeleteBuildCommandTest
     {
         [Test]
         public void UnauthorizedExecuteTest()
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock(HttpStatusCode.Unauthorized);
 
-            var request = RequestTestMockBuilder.CreateCommand<DeleteBuildByIdCommand>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateCommand<DeleteBuildCommand>("org", "project", restFactoryMock);
 
             Should.ThrowAsync<UnauthorizedAccessException>(() => request.ExecuteAsync());
         }
@@ -29,7 +29,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock(HttpStatusCode.NotFound);
 
-            var request = RequestTestMockBuilder.CreateCommand<DeleteBuildByIdCommand>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateCommand<DeleteBuildCommand>("org", "project", restFactoryMock);
 
             Should.ThrowAsync<InvalidOperationException>(() => request.ExecuteAsync());
         }
@@ -39,7 +39,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock();
             
-            var command = RequestTestMockBuilder.CreateCommand<DeleteBuildByIdCommand>("org", "project", restFactoryMock);
+            var command = RequestTestMockBuilder.CreateCommand<DeleteBuildCommand>("org", "project", restFactoryMock);
             command.BuildId = 42;
             
             await command.ExecuteAsync();

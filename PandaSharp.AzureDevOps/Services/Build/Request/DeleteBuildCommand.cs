@@ -1,7 +1,5 @@
 ﻿using PandaSharp.AzureDevOps.Context;
-using PandaSharp.AzureDevOps.Services.Build.Aspect;
 using PandaSharp.AzureDevOps.Services.Build.Contract;
-using PandaSharp.AzureDevOps.Services.Build.Response;
 using PandaSharp.AzureDevOps.Services.Build.Types;
 using PandaSharp.Framework.Attributes;
 using PandaSharp.Framework.Rest.Contract;
@@ -11,24 +9,17 @@ using RestSharp;
 
 namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
-    [SupportsParameterAspect(typeof(IGetBuildByIdParameterAspect))]
-    internal sealed class GetBuildByIdRequest : RequestBase<BuildResponse>, IGetBuildByIdRequest
+    internal sealed class DeleteBuildCommand : CommandBase, IDeleteBuildCommand
     {
         private readonly IInstanceMetaInformation _instanceMetaInformation;
 
         [InjectedProperty(RequestPropertyNames.BuildId)]
-        public int BuildId { get; set; } 
-
-        public GetBuildByIdRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverter responseConverter) 
-            : base(restClientFactory, parameterAspectFactory, responseConverter)
+        public int BuildId { get; set; }
+        
+        public DeleteBuildCommand(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory) 
+            : base(restClientFactory, parameterAspectFactory)
         {
             _instanceMetaInformation = instanceMetaInformation;
-        }
-
-        public IGetBuildByIdRequest WithPropertiesFilter(string propertiesFilter)
-        {
-            GetAspect<IGetBuildByIdParameterAspect>().SetPropertiesFilter(propertiesFilter);
-            return this;
         }
 
         protected override string GetResourcePath()
@@ -38,7 +29,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
 
         protected override Method GetRequestMethod()
         {
-            return Method.GET;
+            return Method.DELETE;
         }
     }
 }

@@ -24,9 +24,9 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Factory
         }
         
         [Test]
-        public void GetBuildByIdTest()
+        public void GetBuildTest()
         {
-            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IGetBuildByIdRequest>(
+            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IGetBuildRequest>(
                 parameters =>
                 {
                     parameters.Length.ShouldBe(1);
@@ -34,7 +34,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Factory
                 });
             
             var factory = new BuildRequestBuilderFactory(containerMock.Object);
-            var request = factory.GetBuildById(42);
+            var request = factory.GetBuild(42);
             request.ShouldNotBeNull();
 
             containerMock.Verify();
@@ -42,9 +42,9 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Factory
         }
         
         [Test]
-        public void DeleteBuildByIdTest()
+        public void DeleteBuildTest()
         {
-            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IDeleteBuildByIdCommand>(
+            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IDeleteBuildCommand>(
                 parameters =>
                 {
                     parameters.Length.ShouldBe(1);
@@ -52,7 +52,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Factory
                 });
             
             var factory = new BuildRequestBuilderFactory(containerMock.Object);
-            var request = factory.DeleteBuildById(666);
+            var request = factory.DeleteBuild(666);
             request.ShouldNotBeNull();
 
             containerMock.Verify();

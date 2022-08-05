@@ -2,7 +2,7 @@
 
 namespace PandaSharp.AzureDevOps.Services.Build.Contract
 {
-    public interface IDeleteBuildByIdCommand : ICommandBase
+    public interface IDeleteBuildCommand : ICommandBase
     {
     }
 }

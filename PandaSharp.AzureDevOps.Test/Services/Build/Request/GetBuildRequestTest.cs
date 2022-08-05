@@ -13,14 +13,14 @@ using Shouldly;
 namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
 {
     [TestFixture]
-    public sealed class GetBuildByIdRequestTest
+    public sealed class GetBuildRequestTest
     {
         [Test]
         public void UnauthorizedExecuteTest()
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildResponse>(HttpStatusCode.Unauthorized);
 
-            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest, BuildResponse>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetBuildRequest, BuildResponse>("org", "project", restFactoryMock);
 
             Should.ThrowAsync<UnauthorizedAccessException>(() => request.ExecuteAsync());
         }
@@ -30,7 +30,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildResponse>(HttpStatusCode.NotFound);
 
-            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest, BuildResponse>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetBuildRequest, BuildResponse>("org", "project", restFactoryMock);
 
             Should.ThrowAsync<InvalidOperationException>(() => request.ExecuteAsync());
         }
@@ -41,7 +41,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
             var getBuildByIdParameterAspectMock = RequestTestMockBuilder.CreateParameterAspectMock<IGetBuildByIdParameterAspect>();
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildResponse>();
             
-            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest, BuildResponse>("org", "project", restFactoryMock, getBuildByIdParameterAspectMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetBuildRequest, BuildResponse>("org", "project", restFactoryMock, getBuildByIdParameterAspectMock);
             request.BuildId = 42;
             request.WithPropertiesFilter("TestMeHard");
             

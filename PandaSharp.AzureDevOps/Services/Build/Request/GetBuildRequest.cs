@@ -1,5 +1,7 @@
 ﻿using PandaSharp.AzureDevOps.Context;
+using PandaSharp.AzureDevOps.Services.Build.Aspect;
 using PandaSharp.AzureDevOps.Services.Build.Contract;
+using PandaSharp.AzureDevOps.Services.Build.Response;
 using PandaSharp.AzureDevOps.Services.Build.Types;
 using PandaSharp.Framework.Attributes;
 using PandaSharp.Framework.Rest.Contract;
@@ -9,17 +11,24 @@ using RestSharp;
 
 namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
-    internal sealed class DeleteBuildByIdCommand : CommandBase, IDeleteBuildByIdCommand
+    [SupportsParameterAspect(typeof(IGetBuildByIdParameterAspect))]
+    internal sealed class GetBuildRequest : RequestBase<BuildResponse>, IGetBuildRequest
     {
         private readonly IInstanceMetaInformation _instanceMetaInformation;
 
         [InjectedProperty(RequestPropertyNames.BuildId)]
-        public int BuildId { get; set; }
-        
-        public DeleteBuildByIdCommand(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory) 
-            : base(restClientFactory, parameterAspectFactory)
+        public int BuildId { get; set; } 
+
+        public GetBuildRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverter responseConverter) 
+            : base(restClientFactory, parameterAspectFactory, responseConverter)
         {
             _instanceMetaInformation = instanceMetaInformation;
+        }
+
+        public IGetBuildRequest WithPropertiesFilter(string propertiesFilter)
+        {
+            GetAspect<IGetBuildByIdParameterAspect>().SetPropertiesFilter(propertiesFilter);
+            return this;
         }
 
         protected override string GetResourcePath()
@@ -29,7 +38,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
 
         protected override Method GetRequestMethod()
         {
-            return Method.DELETE;
+            return Method.GET;
         }
     }
 }
