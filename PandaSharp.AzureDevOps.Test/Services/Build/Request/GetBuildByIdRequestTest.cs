@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using PandaSharp.AzureDevOps.Services.Build.Aspect;
@@ -14,12 +16,32 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
     public sealed class GetBuildByIdRequestTest
     {
         [Test]
+        public void UnauthorizedExecuteTest()
+        {
+            var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildResponse>(HttpStatusCode.Unauthorized);
+
+            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest, BuildResponse>("org", "project", restFactoryMock);
+
+            Should.ThrowAsync<UnauthorizedAccessException>(() => request.ExecuteAsync());
+        }
+
+        [Test]
+        public void AnyErrorWhileExecuteTest()
+        {
+            var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildResponse>(HttpStatusCode.NotFound);
+
+            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest, BuildResponse>("org", "project", restFactoryMock);
+
+            Should.ThrowAsync<InvalidOperationException>(() => request.ExecuteAsync());
+        }
+        
+        [Test]
         public async Task ExecuteAsyncTest()
         {
             var getBuildByIdParameterAspectMock = RequestTestMockBuilder.CreateParameterAspectMock<IGetBuildByIdParameterAspect>();
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildResponse>();
             
-            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest>("org", "project", restFactoryMock, getBuildByIdParameterAspectMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetBuildByIdRequest, BuildResponse>("org", "project", restFactoryMock, getBuildByIdParameterAspectMock);
             request.BuildId = 42;
             request.WithPropertiesFilter("TestMeHard");
             

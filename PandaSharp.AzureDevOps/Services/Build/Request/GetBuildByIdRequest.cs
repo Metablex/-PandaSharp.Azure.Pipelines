@@ -18,9 +18,9 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
 
         [InjectedProperty(RequestPropertyNames.BuildId)]
         public int BuildId { get; set; } 
-            
-        public GetBuildByIdRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory) 
-            : base(restClientFactory, parameterAspectFactory)
+
+        public GetBuildByIdRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverter responseConverter) 
+            : base(restClientFactory, parameterAspectFactory, responseConverter)
         {
             _instanceMetaInformation = instanceMetaInformation;
         }

@@ -22,7 +22,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildListResponse>(HttpStatusCode.Unauthorized);
 
-            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest, BuildListResponse>("org", "project", restFactoryMock);
 
             Should.ThrowAsync<UnauthorizedAccessException>(() => request.ExecuteAsync());
         }
@@ -32,7 +32,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildListResponse>(HttpStatusCode.NotFound);
 
-            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest, BuildListResponse>("org", "project", restFactoryMock);
 
             Should.ThrowAsync<InvalidOperationException>(() => request.ExecuteAsync());
         }
@@ -45,7 +45,7 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
             var currentDateTime = DateTime.Now;
             
             var request = RequestTestMockBuilder
-                .CreateRequest<GetAllBuildsRequest>("org", "project", restFactoryMock, getAllBuildsParameterAspectMock)
+                .CreateRequest<GetAllBuildsRequest, BuildListResponse>("org", "project", restFactoryMock, getAllBuildsParameterAspectMock)
                 .WithBranchName("branch")
                 .WithBuildIds(1, 2)
                 .WithBuildNumber("number")

@@ -4,6 +4,8 @@ using PandaSharp.AzureDevOps.Services.Build.Aspect;
 using PandaSharp.AzureDevOps.Services.Build.Contract;
 using PandaSharp.AzureDevOps.Services.Build.Response;
 using PandaSharp.AzureDevOps.Services.Build.Types;
+using PandaSharp.AzureDevOps.Services.Common.Aspect;
+using PandaSharp.AzureDevOps.Services.Common.Contract;
 using PandaSharp.AzureDevOps.Services.Common.Types;
 using PandaSharp.Framework.Attributes;
 using PandaSharp.Framework.Rest.Contract;
@@ -14,12 +16,13 @@ using RestSharp;
 namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
     [SupportsParameterAspect(typeof(IGetAllBuildsParameterAspect))]
-    internal sealed class GetAllBuildsRequest : RequestBase<BuildListResponse>, IGetAllBuildsRequest
+    [SupportsParameterAspect(typeof(IPaginationSupportParameterAspect))]
+    internal sealed class GetAllBuildsRequest : RequestBase<BuildListResponse>, IGetAllBuildsRequest, IPaginationSupportedRequest
     {
         private readonly IInstanceMetaInformation _instanceMetaInformation;
 
-        public GetAllBuildsRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory) 
-            : base(restClientFactory, parameterAspectFactory)
+        public GetAllBuildsRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverter responseConverter) 
+            : base(restClientFactory, parameterAspectFactory, responseConverter)
         {
             _instanceMetaInformation = instanceMetaInformation;
         }
@@ -130,6 +133,16 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
         {
             GetAspect<IGetAllBuildsParameterAspect>().SetRequesterFilter(requester);
             return this;
+        }
+
+        public void WithMaxResult(int maxResults)
+        {
+            GetAspect<IPaginationSupportParameterAspect>().SetMaxResults(maxResults);
+        }
+
+        public void WithContinuationToken(string continuationToken)
+        {
+            GetAspect<IPaginationSupportParameterAspect>().SetContinuationToken(continuationToken);
         }
 
         protected override string GetResourcePath()
