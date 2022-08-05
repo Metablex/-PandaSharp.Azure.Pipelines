@@ -51,7 +51,7 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
                 requestParameterAspectFactoryMock.Object);
         }
         
-        internal static Mock<IRestFactory> CreateRestFactoryMock<TResponse>(HttpStatusCode responseCode = HttpStatusCode.OK)
+        internal static Mock<IRestFactory> CreateRestFactoryMock<TResponse>(HttpStatusCode responseCode = HttpStatusCode.OK, Mock<IRestRequest> restRequestMock = null)
             where TResponse : class, new()
         {
             var response = new Mock<IRestResponse<TResponse>>();
@@ -72,6 +72,8 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
                 .Setup(i => i.ExecuteAsync<TResponse>(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.Run(() => response.Object));
             
+            var mock = restRequestMock ?? new Mock<IRestRequest>();
+            
             var restFactoryMock = new Mock<IRestFactory>(MockBehavior.Strict);
             restFactoryMock
                 .Setup(i => i.CreateClient())
@@ -79,7 +81,7 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
 
             restFactoryMock
                 .Setup(i => i.CreateRequest(It.IsAny<string>(), It.IsAny<Method>()))
-                .Returns(() => new Mock<IRestRequest>().Object);
+                .Returns(() => mock.Object);
 
             return restFactoryMock;
         }

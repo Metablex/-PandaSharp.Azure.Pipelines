@@ -58,5 +58,42 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Factory
             containerMock.Verify();
             containerMock.VerifyNoOtherCalls();
         }
+        
+        [Test]
+        public void GetAllArtifactsOfBuildTest()
+        {
+            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IGetAllArtifactsOfBuildRequest>(
+                parameters =>
+                {
+                    parameters.Length.ShouldBe(1);
+                    parameters.ShouldContain(p => p.PropertyName == RequestPropertyNames.BuildId && p.PropertyValue.Equals(666));
+                });
+            
+            var factory = new BuildRequestBuilderFactory(containerMock.Object);
+            var request = factory.GetAllArtifactsOfBuild(666);
+            request.ShouldNotBeNull();
+
+            containerMock.Verify();
+            containerMock.VerifyNoOtherCalls();
+        }
+        
+        [Test]
+        public void GetArtifactOfBuildTest()
+        {
+            var containerMock = RequestBuilderFactoryMockBuilder.CreateRequestRegistrationMock<IGetArtifactOfBuildRequest>(
+                parameters =>
+                {
+                    parameters.Length.ShouldBe(2);
+                    parameters.ShouldContain(p => p.PropertyName == RequestPropertyNames.BuildId && p.PropertyValue.Equals(666));
+                    parameters.ShouldContain(p => p.PropertyName == RequestPropertyNames.ArtifactName && p.PropertyValue.Equals("arti"));
+                });
+            
+            var factory = new BuildRequestBuilderFactory(containerMock.Object);
+            var request = factory.GetArtifactOfBuild(666, "arti");
+            request.ShouldNotBeNull();
+
+            containerMock.Verify();
+            containerMock.VerifyNoOtherCalls();
+        }
     }
 }

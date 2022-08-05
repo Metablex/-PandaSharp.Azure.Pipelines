@@ -18,16 +18,29 @@ namespace PandaSharp.AzureDevOps.Services.Build.Factory
             return _container.Resolve<IGetAllBuildsRequest>();
         }
 
-        public IGetBuildByIdRequest GetBuildById(int buildId)
+        public IGetBuildRequest GetBuild(int buildId)
         {
-            return _container.Resolve<IGetBuildByIdRequest>(
+            return _container.Resolve<IGetBuildRequest>(
                 new InjectProperty(RequestPropertyNames.BuildId, buildId));
         }
 
-        public IDeleteBuildByIdCommand DeleteBuildById(int buildId)
+        public IDeleteBuildCommand DeleteBuild(int buildId)
         {
-            return _container.Resolve<IDeleteBuildByIdCommand>(
+            return _container.Resolve<IDeleteBuildCommand>(
                 new InjectProperty(RequestPropertyNames.BuildId, buildId));
+        }
+
+        public IGetAllArtifactsOfBuildRequest GetAllArtifactsOfBuild(int buildId)
+        {
+            return _container.Resolve<IGetAllArtifactsOfBuildRequest>(
+                new InjectProperty(RequestPropertyNames.BuildId, buildId));
+        }
+
+        public IGetArtifactOfBuildRequest GetArtifactOfBuild(int buildId, string artifactName)
+        {
+            return _container.Resolve<IGetArtifactOfBuildRequest>(
+                new InjectProperty(RequestPropertyNames.BuildId, buildId),
+                new InjectProperty(RequestPropertyNames.ArtifactName, artifactName));
         }
     }
 }
