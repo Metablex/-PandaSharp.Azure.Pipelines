@@ -12,6 +12,7 @@ namespace PandaSharp.AzureDevOps.Test
             var bambooApi = AzureDevOpsApiFactory.CreateWithPersonalAccessToken("org", "TestBob", "tokenXYZ");
 
             bambooApi.BuildRequest.ShouldNotBeNull();
+            bambooApi.GitRepositoryRequest.ShouldNotBeNull();
         }
     }
 }

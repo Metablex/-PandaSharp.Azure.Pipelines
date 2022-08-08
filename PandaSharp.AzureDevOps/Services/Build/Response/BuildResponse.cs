@@ -48,5 +48,8 @@ namespace PandaSharp.AzureDevOps.Services.Build.Response
         
         [JsonProperty("sourceVersion")]
         public string SourceVersion { get; set; }
+        
+        [JsonProperty("_links")]
+        public ReferenceLinkListResponse ReferenceLinks { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Factory
         {
             _container = container;
         }
+
         public IGetAllBuildsRequest GetAllBuilds()
         {
             return _container.Resolve<IGetAllBuildsRequest>();
