@@ -5,5 +5,7 @@ namespace PandaSharp.AzureDevOps.Services.Git.Factory
     public interface IGitRequestBuilderFactory
     {
         IGetAllGitRepositoriesRequest GetAllGitRepositories();
+
+        IGetGitRepositoryRequest GetGitRepository(string repositoryId);
     }
 }

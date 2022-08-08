@@ -12,7 +12,9 @@ namespace PandaSharp.AzureDevOps.Services.Git
         {
             container.RegisterType<IGitRequestBuilderFactory, GitRequestBuilderFactory>();
             container.RegisterType<IGetAllGitRepositoriesRequest, GetAllGitRepositoriesRequest>();
+            container.RegisterType<IGetGitRepositoryRequest, GetGitRepositoryRequest>();
             container.RegisterType<IGetAllGitRepositoriesParameterAspect, GetAllGitRepositoriesParameterAspect>();
+            container.RegisterType<IGetGitRepositoryParameterAspect, GetGitRepositoryParameterAspect>();
         }
     }
 }

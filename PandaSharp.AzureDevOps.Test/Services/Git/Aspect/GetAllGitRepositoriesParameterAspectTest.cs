@@ -17,14 +17,6 @@ namespace PandaSharp.AzureDevOps.Test.Services.Git.Aspect
             _restRequestMock
                 .Setup(i => i.AddQueryParameter(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(_restRequestMock.Object);
-
-            _restRequestMock
-                .Setup(i => i.AddQueryParameter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-                .Returns(_restRequestMock.Object);
-
-            _restRequestMock
-                .Setup(i => i.AddParameter(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(_restRequestMock.Object);
         }
 
         [Test]
