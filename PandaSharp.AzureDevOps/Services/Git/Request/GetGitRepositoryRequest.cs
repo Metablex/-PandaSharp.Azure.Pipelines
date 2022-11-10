@@ -1,4 +1,5 @@
 ﻿using PandaSharp.AzureDevOps.Context;
+using PandaSharp.AzureDevOps.Services.Common.Rest;
 using PandaSharp.AzureDevOps.Services.Git.Aspect;
 using PandaSharp.AzureDevOps.Services.Git.Contract;
 using PandaSharp.AzureDevOps.Services.Git.Response;
@@ -12,6 +13,7 @@ using RestSharp;
 namespace PandaSharp.AzureDevOps.Services.Git.Request
 {
     [SupportsParameterAspect(typeof(IGetGitRepositoryParameterAspect))]
+    [RestResponseConverter(typeof(RestResponseConverter))]
     internal sealed class GetGitRepositoryRequest : RequestBase<GitRepositoryResponse>, IGetGitRepositoryRequest
     {
         private readonly IInstanceMetaInformation _instanceMetaInformation;
@@ -19,8 +21,8 @@ namespace PandaSharp.AzureDevOps.Services.Git.Request
         [InjectedProperty(RequestPropertyNames.RepositoryId)]
         public string RepositoryId { get; set; }
 
-        public GetGitRepositoryRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverter responseConverter)
-            : base(restClientFactory, parameterAspectFactory, responseConverter)
+        public GetGitRepositoryRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverterFactory responseConverterFactory)
+            : base(restClientFactory, parameterAspectFactory, responseConverterFactory)
         {
             _instanceMetaInformation = instanceMetaInformation;
         }

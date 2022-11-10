@@ -6,6 +6,7 @@ using PandaSharp.AzureDevOps.Services.Build.Response;
 using PandaSharp.AzureDevOps.Services.Build.Types;
 using PandaSharp.AzureDevOps.Services.Common.Aspect;
 using PandaSharp.AzureDevOps.Services.Common.Contract;
+using PandaSharp.AzureDevOps.Services.Common.Rest;
 using PandaSharp.AzureDevOps.Services.Common.Types;
 using PandaSharp.Framework.Attributes;
 using PandaSharp.Framework.Rest.Contract;
@@ -17,12 +18,13 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
     [SupportsParameterAspect(typeof(IGetAllBuildsParameterAspect))]
     [SupportsParameterAspect(typeof(IPaginationSupportParameterAspect))]
+    [RestResponseConverter(typeof(RestResponseConverter))]
     internal sealed class GetAllBuildsRequest : RequestBase<BuildListResponse>, IGetAllBuildsRequest, IPaginationSupportedRequest
     {
         private readonly IInstanceMetaInformation _instanceMetaInformation;
 
-        public GetAllBuildsRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverter responseConverter) 
-            : base(restClientFactory, parameterAspectFactory, responseConverter)
+        public GetAllBuildsRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverterFactory responseConverterFactory)
+            : base(restClientFactory, parameterAspectFactory, responseConverterFactory)
         {
             _instanceMetaInformation = instanceMetaInformation;
         }

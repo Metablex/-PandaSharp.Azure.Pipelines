@@ -24,16 +24,16 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
         {
             var instanceMetaInformationMock = CreateInstanceMetaInformationMock(organization, project);
             var requestParameterAspectFactoryMock = CreateRequestParameterAspectFactoryMock(parameterAspects);
-            var restResponseConverter = CreateRestResponseConverterMock<TResponse>();
-            
+            var restResponseConverterFactory = CreateRestResponseConverterFactoryMock<TResponse>();
+
             return (TRequest)Activator.CreateInstance(
                 typeof(TRequest),
                 instanceMetaInformationMock.Object,
                 restFactoryMock.Object,
                 requestParameterAspectFactoryMock.Object,
-                restResponseConverter.Object);
+                restResponseConverterFactory.Object);
         }
-        
+
         internal static TRequest CreateCommand<TRequest>(
             string organization,
             string project,
@@ -43,14 +43,14 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
         {
             var instanceMetaInformationMock = CreateInstanceMetaInformationMock(organization, project);
             var requestParameterAspectFactoryMock = CreateRequestParameterAspectFactoryMock(parameterAspects);
-            
+
             return (TRequest)Activator.CreateInstance(
                 typeof(TRequest),
                 instanceMetaInformationMock.Object,
                 restFactoryMock.Object,
                 requestParameterAspectFactoryMock.Object);
         }
-        
+
         internal static Mock<IRestFactory> CreateRestFactoryMock<TResponse>(HttpStatusCode responseCode = HttpStatusCode.OK, Mock<IRestRequest> restRequestMock = null)
             where TResponse : class, new()
         {
@@ -71,9 +71,9 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
             client
                 .Setup(i => i.ExecuteAsync<TResponse>(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.Run(() => response.Object));
-            
+
             var mock = restRequestMock ?? new Mock<IRestRequest>();
-            
+
             var restFactoryMock = new Mock<IRestFactory>(MockBehavior.Strict);
             restFactoryMock
                 .Setup(i => i.CreateClient())
@@ -85,7 +85,7 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
 
             return restFactoryMock;
         }
-        
+
         internal static Mock<IRestFactory> CreateRestFactoryMock(HttpStatusCode responseCode = HttpStatusCode.OK, Mock<IRestRequest> restRequestMock = null)
         {
             var response = new Mock<IRestResponse>();
@@ -103,7 +103,7 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
                 .Returns(Task.Run(() => response.Object));
 
             var mock = restRequestMock ?? new Mock<IRestRequest>();
-            
+
             var restFactoryMock = new Mock<IRestFactory>(MockBehavior.Strict);
             restFactoryMock
                 .Setup(i => i.CreateClient())
@@ -144,16 +144,21 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
 
             return instanceMetaInformationMock;
         }
-        
-        private static Mock<IRestResponseConverter> CreateRestResponseConverterMock<TResponse>()
+
+        private static Mock<IRestResponseConverterFactory> CreateRestResponseConverterFactoryMock<TResponse>()
         {
+            var restResponseConverterFactoryMock = new Mock<IRestResponseConverterFactory>();
             var restResponseConverterMock = new Mock<IRestResponseConverter>();
+
+            restResponseConverterFactoryMock
+                .Setup(i => i.CreateResponseConverter(It.IsAny<Type>()))
+                .Returns(restResponseConverterMock.Object);
 
             restResponseConverterMock
                 .Setup(i => i.ConvertRestResponse(It.IsAny<IRestResponse<TResponse>>()))
                 .Returns<IRestResponse<TResponse>>(response => response.Data);
 
-            return restResponseConverterMock;
+            return restResponseConverterFactoryMock;
         }
     }
 }

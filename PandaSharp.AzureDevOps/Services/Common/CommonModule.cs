@@ -10,7 +10,6 @@ namespace PandaSharp.AzureDevOps.Services.Common
         public void RegisterModule(IPandaContainer container)
         {
             container.RegisterType<IAzureDevOpsApi, AzureDevOpsApi>();
-            container.RegisterType<IRestResponseConverter, RestResponseConverter>();
             container.RegisterType<IPaginationSupportParameterAspect, PaginationSupportParameterAspect>();
         }
     }
