@@ -12,11 +12,11 @@ using RestSharp;
 namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
     [RestResponseConverter(typeof(RestResponseConverter))]
-    internal sealed class GetAllArtifactsOfBuildRequest : RequestBase<ArtifactListResponse>, IGetAllArtifactsOfBuildRequest
+    internal sealed class GetArtifactResourceManifest : RequestBase<ArtifactResponseManifest>, IGetArtifactResourceManifest
     {
         private readonly IRestCommunicationContext _restCommunicationContext;
 
-        public GetAllArtifactsOfBuildRequest(
+        public GetArtifactResourceManifest(
             IRestCommunicationContext restCommunicationContext,
             IRestFactory restClientFactory,
             IRequestParameterAspectFactory parameterAspectFactory,
@@ -24,6 +24,16 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
             : base(restClientFactory, parameterAspectFactory, responseConverterFactory)
         {
             _restCommunicationContext = restCommunicationContext;
+        }
+
+        protected override void ApplyToRestRequest(IRestRequest restRequest)
+        {
+            var artifactName = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.ArtifactName);
+            var resourceId = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.ResourceId);
+
+            restRequest.AddQueryParameter("artifactName", artifactName);
+            restRequest.AddQueryParameter("fileId", resourceId);
+            restRequest.AddQueryParameter("fileName", "Manifest.file");
         }
 
         protected override string GetResourcePath()

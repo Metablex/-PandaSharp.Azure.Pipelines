@@ -9,7 +9,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Response
         public string Type { get; set; }
 
         [JsonProperty("data")]
-        public string DataId { get; set; }
+        public string ResourceId { get; set; }
 
         [JsonProperty("url")]
         public string Url { get; set; }
