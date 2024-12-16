@@ -13,7 +13,7 @@ namespace PandaSharp.AzureDevOps.Services.Git.Aspect
             _includeParentRepository = includeParentRepository;
         }
 
-        public override void ApplyToRestRequest(IRestRequest restRequest)
+        public override void ApplyToRestRequest(RestRequest restRequest)
         {
             restRequest.AddParameterIfSet("includeParent", _includeParentRepository);
         }

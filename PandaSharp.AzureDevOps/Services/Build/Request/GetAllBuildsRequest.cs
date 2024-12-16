@@ -1,5 +1,4 @@
 ﻿using System;
-using PandaSharp.AzureDevOps.Context;
 using PandaSharp.AzureDevOps.Services.Build.Aspect;
 using PandaSharp.AzureDevOps.Services.Build.Contract;
 using PandaSharp.AzureDevOps.Services.Build.Response;
@@ -11,6 +10,7 @@ using PandaSharp.AzureDevOps.Services.Common.Types;
 using PandaSharp.Framework.Attributes;
 using PandaSharp.Framework.Rest.Contract;
 using PandaSharp.Framework.Services.Aspect;
+using PandaSharp.Framework.Services.Contract;
 using PandaSharp.Framework.Services.Request;
 using RestSharp;
 
@@ -21,12 +21,12 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
     [RestResponseConverter(typeof(RestResponseConverter))]
     internal sealed class GetAllBuildsRequest : RequestBase<BuildListResponse>, IGetAllBuildsRequest, IPaginationSupportedRequest
     {
-        private readonly IInstanceMetaInformation _instanceMetaInformation;
+        private readonly IRestCommunicationContext _restCommunicationContext;
 
-        public GetAllBuildsRequest(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverterFactory responseConverterFactory)
+        public GetAllBuildsRequest(IRestCommunicationContext restCommunicationContext, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverterFactory responseConverterFactory)
             : base(restClientFactory, parameterAspectFactory, responseConverterFactory)
         {
-            _instanceMetaInformation = instanceMetaInformation;
+            _restCommunicationContext = restCommunicationContext;
         }
 
         public IGetAllBuildsRequest WithBranchName(string branchName)
@@ -149,12 +149,15 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
 
         protected override string GetResourcePath()
         {
-            return $"{_instanceMetaInformation.Organization}/{_instanceMetaInformation.Project}/_apis/build/builds";
+            var organization = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.Organization);
+            var project = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.Project);
+
+            return $"{organization}/{project}/_apis/build/builds";
         }
 
         protected override Method GetRequestMethod()
         {
-            return Method.GET;
+            return Method.Get;
         }
     }
 }

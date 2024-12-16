@@ -13,7 +13,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Aspect
             _propertiesFilter = propertiesFilter;
         }
 
-        public override void ApplyToRestRequest(IRestRequest restRequest)
+        public override void ApplyToRestRequest(RestRequest restRequest)
         {
             restRequest.AddParameterIfSet("propertyFilters", _propertiesFilter);
         }

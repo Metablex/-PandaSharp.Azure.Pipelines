@@ -1,5 +1,4 @@
-﻿using PandaSharp.AzureDevOps.Services.Build.Aspect;
-using PandaSharp.AzureDevOps.Services.Build.Contract;
+﻿using PandaSharp.AzureDevOps.Services.Build.Contract;
 using PandaSharp.AzureDevOps.Services.Build.Response;
 using PandaSharp.AzureDevOps.Services.Build.Types;
 using PandaSharp.AzureDevOps.Services.Common.Rest;
@@ -12,22 +11,29 @@ using RestSharp;
 
 namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
-    [SupportsParameterAspect(typeof(IGetBuildByIdParameterAspect))]
     [RestResponseConverter(typeof(RestResponseConverter))]
-    internal sealed class GetBuildRequest : RequestBase<BuildResponse>, IGetBuildRequest
+    internal sealed class GetArtifactResourceManifest : RequestBase<ArtifactManifestListResponse>, IGetArtifactResourceManifest
     {
         private readonly IRestCommunicationContext _restCommunicationContext;
 
-        public GetBuildRequest(IRestCommunicationContext restCommunicationContext, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory, IRestResponseConverterFactory responseConverterFactory)
+        public GetArtifactResourceManifest(
+            IRestCommunicationContext restCommunicationContext,
+            IRestFactory restClientFactory,
+            IRequestParameterAspectFactory parameterAspectFactory,
+            IRestResponseConverterFactory responseConverterFactory)
             : base(restClientFactory, parameterAspectFactory, responseConverterFactory)
         {
             _restCommunicationContext = restCommunicationContext;
         }
 
-        public IGetBuildRequest WithPropertiesFilter(string propertiesFilter)
+        protected override void ApplyToRestRequest(RestRequest restRequest)
         {
-            GetAspect<IGetBuildByIdParameterAspect>().SetPropertiesFilter(propertiesFilter);
-            return this;
+            var artifactName = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.ArtifactName);
+            var resourceId = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.ResourceId);
+
+            restRequest.AddQueryParameter("artifactName", artifactName);
+            restRequest.AddQueryParameter("fileId", resourceId);
+            restRequest.AddQueryParameter("fileName", "Manifest.file");
         }
 
         protected override string GetResourcePath()
@@ -36,7 +42,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
             var project = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.Project);
             var buildId = _restCommunicationContext.GetContextParameter<int>(RequestPropertyNames.BuildId);
 
-            return $"{organization}/{project}/_apis/build/builds/{buildId}";
+            return $"{organization}/{project}/_apis/build/builds/{buildId}/artifacts";
         }
 
         protected override Method GetRequestMethod()

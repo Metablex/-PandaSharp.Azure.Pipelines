@@ -3,76 +3,95 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using Moq;
-using PandaSharp.AzureDevOps.Context;
 using PandaSharp.Framework.Rest.Contract;
 using PandaSharp.Framework.Services.Aspect;
 using PandaSharp.Framework.Services.Contract;
 using RestSharp;
+using RestSharp.Serializers;
 
 namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
 {
     internal static class RequestTestMockBuilder
     {
         internal static TRequest CreateRequest<TRequest, TResponse>(
-            string organization,
-            string project,
-            Mock<IRestFactory> restFactoryMock,
+            IRestCommunicationContext restCommunicationContext,
+            IRestFactory restFactory,
             params Mock[] parameterAspects)
             where TRequest : IRequestBase<TResponse>
         {
-            var instanceMetaInformationMock = CreateInstanceMetaInformationMock(organization, project);
             var requestParameterAspectFactoryMock = CreateRequestParameterAspectFactoryMock(parameterAspects);
             var restResponseConverterFactory = CreateRestResponseConverterFactoryMock<TResponse>();
 
             return (TRequest)Activator.CreateInstance(
                 typeof(TRequest),
-                instanceMetaInformationMock.Object,
-                restFactoryMock.Object,
+                restCommunicationContext,
+                restFactory,
                 requestParameterAspectFactoryMock.Object,
                 restResponseConverterFactory.Object);
         }
 
         internal static TRequest CreateCommand<TRequest>(
-            string organization,
-            string project,
-            Mock<IRestFactory> restFactoryMock,
+            IRestCommunicationContext restCommunicationContext,
+            IRestFactory restFactory,
             params Mock[] parameterAspects)
             where TRequest : ICommandBase
         {
-            var instanceMetaInformationMock = CreateInstanceMetaInformationMock(organization, project);
             var requestParameterAspectFactoryMock = CreateRequestParameterAspectFactoryMock(parameterAspects);
 
             return (TRequest)Activator.CreateInstance(
                 typeof(TRequest),
-                instanceMetaInformationMock.Object,
-                restFactoryMock.Object,
+                restCommunicationContext,
+                restFactory,
                 requestParameterAspectFactoryMock.Object);
         }
 
-        internal static Mock<IRestFactory> CreateRestFactoryMock<TResponse>(HttpStatusCode responseCode = HttpStatusCode.OK, Mock<IRestRequest> restRequestMock = null)
+        internal static Mock<IRestFactory> CreateRestFactoryMock<TResponse>(HttpStatusCode responseCode = HttpStatusCode.OK, RestRequest restRequest = null)
             where TResponse : class, new()
         {
-            var response = new Mock<IRestResponse<TResponse>>();
-            response
-                .SetupGet(i => i.IsSuccessful)
-                .Returns(responseCode == HttpStatusCode.OK);
+            var deserializerMock = new Mock<IDeserializer>();
+            deserializerMock
+                .Setup(i => i.Deserialize<TResponse>(It.IsAny<RestResponse>()))
+                .Returns(() => new TResponse());
 
-            response
-                .SetupGet(i => i.StatusCode)
-                .Returns(responseCode);
+            var serializerMock = new Mock<IRestSerializer>();
+            serializerMock
+                .SetupGet(i => i.AcceptedContentTypes)
+                .Returns(["*"]);
 
-            response
-                .SetupGet(i => i.Data)
-                .Returns(new TResponse());
+            serializerMock
+                .SetupGet(i => i.Deserializer)
+                .Returns(deserializerMock.Object);
+
+            var serializerConfig = new SerializerConfig();
+            serializerConfig.UseSerializer(() => serializerMock.Object);
 
             var client = new Mock<IRestClient>(MockBehavior.Strict);
             client
-                .Setup(i => i.ExecuteAsync<TResponse>(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.Run(() => response.Object));
+                .Setup(i => i.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    (RestRequest request, CancellationToken _) =>
+                    {
+                        var response = new RestResponse(request)
+                        {
+                            IsSuccessStatusCode = responseCode == HttpStatusCode.OK,
+                            ResponseStatus = ResponseStatus.Completed,
+                            StatusCode = responseCode,
+                            Content = "Test"
+                        };
 
-            var mock = restRequestMock ?? new Mock<IRestRequest>();
+                        return response;
+                    });
+
+            client
+                .SetupGet(i => i.Serializers)
+                .Returns(new RestSerializers(serializerConfig));
+
+            client
+                .Setup(i => i.Options)
+                .Returns(new ReadOnlyRestClientOptions(new RestClientOptions()));
+
+            var mock = restRequest ?? new RestRequest();
 
             var restFactoryMock = new Mock<IRestFactory>(MockBehavior.Strict);
             restFactoryMock
@@ -81,28 +100,30 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
 
             restFactoryMock
                 .Setup(i => i.CreateRequest(It.IsAny<string>(), It.IsAny<Method>()))
-                .Returns(() => mock.Object);
+                .Returns(() => mock);
 
             return restFactoryMock;
         }
 
-        internal static Mock<IRestFactory> CreateRestFactoryMock(HttpStatusCode responseCode = HttpStatusCode.OK, Mock<IRestRequest> restRequestMock = null)
+        internal static Mock<IRestFactory> CreateRestFactoryMock(HttpStatusCode responseCode = HttpStatusCode.OK, RestRequest restRequest = null)
         {
-            var response = new Mock<IRestResponse>();
-            response
-                .SetupGet(i => i.IsSuccessful)
-                .Returns(responseCode == HttpStatusCode.OK);
-
-            response
-                .SetupGet(i => i.StatusCode)
-                .Returns(responseCode);
-
             var client = new Mock<IRestClient>(MockBehavior.Strict);
             client
-                .Setup(i => i.ExecuteAsync(It.IsAny<IRestRequest>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.Run(() => response.Object));
+                .Setup(i => i.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    (RestRequest request, CancellationToken _) =>
+                    {
+                        var response = new RestResponse(request)
+                        {
+                            IsSuccessStatusCode = responseCode == HttpStatusCode.OK,
+                            ResponseStatus = ResponseStatus.Completed,
+                            StatusCode = responseCode
+                        };
 
-            var mock = restRequestMock ?? new Mock<IRestRequest>();
+                        return response;
+                    });
+
+            var mock = restRequest ?? new RestRequest();
 
             var restFactoryMock = new Mock<IRestFactory>(MockBehavior.Strict);
             restFactoryMock
@@ -111,7 +132,7 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
 
             restFactoryMock
                 .Setup(i => i.CreateRequest(It.IsAny<string>(), It.IsAny<Method>()))
-                .Returns(mock.Object);
+                .Returns(mock);
 
             return restFactoryMock;
         }
@@ -121,7 +142,7 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
         {
             var mock = new Mock<TAspect>();
 
-            mock.As<IRequestParameterAspect>().Setup(i => i.ApplyToRestRequest(It.IsAny<IRestRequest>()));
+            mock.As<IRequestParameterAspect>().Setup(i => i.ApplyToRestRequest(It.IsAny<RestRequest>()));
 
             return mock;
         }
@@ -136,15 +157,6 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
             return parameterAspectFactoryMock;
         }
 
-        private static Mock<IInstanceMetaInformation> CreateInstanceMetaInformationMock(string organization, string project)
-        {
-            var instanceMetaInformationMock = new Mock<IInstanceMetaInformation>();
-            instanceMetaInformationMock.SetupGet(i => i.Organization).Returns(organization);
-            instanceMetaInformationMock.SetupGet(i => i.Project).Returns(project);
-
-            return instanceMetaInformationMock;
-        }
-
         private static Mock<IRestResponseConverterFactory> CreateRestResponseConverterFactoryMock<TResponse>()
         {
             var restResponseConverterFactoryMock = new Mock<IRestResponseConverterFactory>();
@@ -155,8 +167,8 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Request
                 .Returns(restResponseConverterMock.Object);
 
             restResponseConverterMock
-                .Setup(i => i.ConvertRestResponse(It.IsAny<IRestResponse<TResponse>>()))
-                .Returns<IRestResponse<TResponse>>(response => response.Data);
+                .Setup(i => i.ConvertRestResponse(It.IsAny<RestResponse<TResponse>>()))
+                .Returns<RestResponse<TResponse>>(response => response.Data);
 
             return restResponseConverterFactoryMock;
         }

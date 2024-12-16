@@ -19,7 +19,7 @@ namespace PandaSharp.AzureDevOps.Services.Common.Aspect
             _continuationToken = continuationToken;
         }
 
-        public override void ApplyToRestRequest(IRestRequest restRequest)
+        public override void ApplyToRestRequest(RestRequest restRequest)
         {
             restRequest
                 .AddParameterIfSet("$top", _maxResults)

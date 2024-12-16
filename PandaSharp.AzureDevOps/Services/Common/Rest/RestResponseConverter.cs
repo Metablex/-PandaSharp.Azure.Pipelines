@@ -10,7 +10,7 @@ namespace PandaSharp.AzureDevOps.Services.Common.Rest
     {
         private const string ContinuationTokenIdentifier = "x-ms-continuationtoken";
 
-        public T ConvertRestResponse<T>(IRestResponse<T> response)
+        public T ConvertRestResponse<T>(RestResponse<T> response)
         {
             var responseData = response.Data;
             if (responseData is IPaginationSupportedResponse paginationSupportedResponse)
@@ -22,13 +22,13 @@ namespace PandaSharp.AzureDevOps.Services.Common.Rest
             return responseData;
         }
 
-        private static string ExtractContinuationToken(IRestResponse response)
+        private static string ExtractContinuationToken(RestResponse response)
         {
             var header = response
-                .Headers
+                .Headers!
                 .FirstOrDefault(i => StringComparer.OrdinalIgnoreCase.Equals(i.Name, ContinuationTokenIdentifier));
 
-            return (string)header?.Value;
+            return header?.Value;
         }
     }
 }

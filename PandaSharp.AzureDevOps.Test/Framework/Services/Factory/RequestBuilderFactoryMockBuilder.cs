@@ -1,7 +1,10 @@
 ﻿using System;
 using Moq;
+using PandaSharp.AzureDevOps.Context;
 using PandaSharp.Framework.IoC.Contract;
 using PandaSharp.Framework.IoC.Injections;
+using PandaSharp.Framework.Rest.Contract;
+using PandaSharp.Framework.Services.Aspect;
 
 namespace PandaSharp.AzureDevOps.Test.Framework.Services.Factory
 {
@@ -10,14 +13,26 @@ namespace PandaSharp.AzureDevOps.Test.Framework.Services.Factory
         internal static Mock<IPandaContainer> CreateRequestRegistrationMock<T>(Action<InjectProperty[]> validateInjectedParts)
             where T : class
         {
-            var container = new Mock<IPandaContainer>();
-            container
+            var containerMock = new Mock<IPandaContainer>();
+            /*containerMock
                 .Setup(i => i.Resolve<T>(It.IsAny<InjectProperty[]>()))
                 .Callback(validateInjectedParts)
                 .Returns(new Mock<T>().Object)
-                .Verifiable();
+                .Verifiable();*/
 
-            return container;
+            containerMock
+                .Setup(i => i.Resolve<IInstanceMetaInformation>())
+                .Returns(Mock.Of<IInstanceMetaInformation>());
+
+            containerMock
+                .Setup(i => i.Resolve<IRequestParameterAspectFactory>())
+                .Returns(Mock.Of<IRequestParameterAspectFactory>());
+
+            containerMock
+                .Setup(i => i.Resolve<IRestResponseConverterFactory>())
+                .Returns(Mock.Of<IRestResponseConverterFactory>());
+
+            return containerMock;
         }
     }
 }

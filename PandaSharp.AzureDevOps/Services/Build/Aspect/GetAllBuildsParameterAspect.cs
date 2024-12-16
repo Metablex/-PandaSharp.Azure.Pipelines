@@ -118,7 +118,7 @@ namespace PandaSharp.AzureDevOps.Services.Build.Aspect
             _requester = requester;
         }
 
-        public override void ApplyToRestRequest(IRestRequest restRequest)
+        public override void ApplyToRestRequest(RestRequest restRequest)
         {
             restRequest
                 .AddParameterIfSet("branchName", _branchName)

@@ -15,14 +15,20 @@ using Shouldly;
 namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
 {
     [TestFixture]
-    internal sealed class GetAllBuildsRequestTest 
+    internal sealed class GetAllBuildsRequestTest
     {
         [Test]
         public void UnauthorizedExecuteTest()
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildListResponse>(HttpStatusCode.Unauthorized);
+            var contextMock = new RestCommunicationContextMockBuilder()
+                .WithContextValue(RequestPropertyNames.Organization, "org")
+                .WithContextValue(RequestPropertyNames.Project, "project")
+                .Build();
 
-            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest, BuildListResponse>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest, BuildListResponse>(
+                contextMock.Object,
+                restFactoryMock.Object);
 
             Should.ThrowAsync<UnauthorizedAccessException>(() => request.ExecuteAsync());
         }
@@ -31,8 +37,14 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
         public void AnyErrorWhileExecuteTest()
         {
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildListResponse>(HttpStatusCode.NotFound);
+            var contextMock = new RestCommunicationContextMockBuilder()
+                .WithContextValue(RequestPropertyNames.Organization, "org")
+                .WithContextValue(RequestPropertyNames.Project, "project")
+                .Build();
 
-            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest, BuildListResponse>("org", "project", restFactoryMock);
+            var request = RequestTestMockBuilder.CreateRequest<GetAllBuildsRequest, BuildListResponse>(
+                contextMock.Object,
+                restFactoryMock.Object);
 
             Should.ThrowAsync<InvalidOperationException>(() => request.ExecuteAsync());
         }
@@ -43,9 +55,13 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
             var getAllBuildsParameterAspectMock = RequestTestMockBuilder.CreateParameterAspectMock<IGetAllBuildsParameterAspect>();
             var restFactoryMock = RequestTestMockBuilder.CreateRestFactoryMock<BuildListResponse>();
             var currentDateTime = DateTime.Now;
-            
+            var contextMock = new RestCommunicationContextMockBuilder()
+                .WithContextValue(RequestPropertyNames.Organization, "org")
+                .WithContextValue(RequestPropertyNames.Project, "project")
+                .Build();
+
             var request = RequestTestMockBuilder
-                .CreateRequest<GetAllBuildsRequest, BuildListResponse>("org", "project", restFactoryMock, getAllBuildsParameterAspectMock)
+                .CreateRequest<GetAllBuildsRequest, BuildListResponse>(contextMock.Object, restFactoryMock.Object, getAllBuildsParameterAspectMock)
                 .WithBranchName("branch")
                 .WithBuildIds(1, 2)
                 .WithBuildNumber("number")
@@ -64,12 +80,12 @@ namespace PandaSharp.AzureDevOps.Test.Services.Build.Request
                 .WithRepositoryType(RepositoryType.Github)
                 .WithTags("tag1", "tag2")
                 .WithRequester("Chuck Norris");
-            
+
             var response = await request.ExecuteAsync();
             response.ShouldNotBeNull();
-            
-            restFactoryMock.Verify(r => r.CreateRequest("org/project/_apis/build/builds", Method.GET), Times.Once);
-            
+
+            restFactoryMock.Verify(r => r.CreateRequest("org/project/_apis/build/builds", Method.Get), Times.Once);
+
             getAllBuildsParameterAspectMock.Verify(i => i.SetBranchNameFilter("branch"), Times.Once);
             getAllBuildsParameterAspectMock.Verify(i => i.SetBuildIdsFilter(new[] { 1, 2 }), Times.Once);
             getAllBuildsParameterAspectMock.Verify(i => i.SetBuildNumberFilter("number"), Times.Once);

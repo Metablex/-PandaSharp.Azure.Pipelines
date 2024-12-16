@@ -25,7 +25,7 @@ namespace PandaSharp.AzureDevOps.Services.Git.Aspect
             _includeReferenceLinks = includeReferenceLinks;
         }
 
-        public override void ApplyToRestRequest(IRestRequest restRequest)
+        public override void ApplyToRestRequest(RestRequest restRequest)
         {
             restRequest
                 .AddParameterIfSet("includeAllUrls", _includeAllRemoteUrls)

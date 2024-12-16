@@ -1,9 +1,8 @@
-﻿using PandaSharp.AzureDevOps.Context;
-using PandaSharp.AzureDevOps.Services.Build.Contract;
+﻿using PandaSharp.AzureDevOps.Services.Build.Contract;
 using PandaSharp.AzureDevOps.Services.Build.Types;
-using PandaSharp.Framework.Attributes;
 using PandaSharp.Framework.Rest.Contract;
 using PandaSharp.Framework.Services.Aspect;
+using PandaSharp.Framework.Services.Contract;
 using PandaSharp.Framework.Services.Request;
 using RestSharp;
 
@@ -11,25 +10,26 @@ namespace PandaSharp.AzureDevOps.Services.Build.Request
 {
     internal sealed class DeleteBuildCommand : CommandBase, IDeleteBuildCommand
     {
-        private readonly IInstanceMetaInformation _instanceMetaInformation;
+        private readonly IRestCommunicationContext _restCommunicationContext;
 
-        [InjectedProperty(RequestPropertyNames.BuildId)]
-        public int BuildId { get; set; }
-        
-        public DeleteBuildCommand(IInstanceMetaInformation instanceMetaInformation, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory) 
+        public DeleteBuildCommand(IRestCommunicationContext restCommunicationContext, IRestFactory restClientFactory, IRequestParameterAspectFactory parameterAspectFactory)
             : base(restClientFactory, parameterAspectFactory)
         {
-            _instanceMetaInformation = instanceMetaInformation;
+            _restCommunicationContext = restCommunicationContext;
         }
 
         protected override string GetResourcePath()
         {
-            return $"{_instanceMetaInformation.Organization}/{_instanceMetaInformation.Project}/_apis/build/builds/{BuildId}";
+            var organization = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.Organization);
+            var project = _restCommunicationContext.GetContextParameter<string>(RequestPropertyNames.Project);
+            var buildId = _restCommunicationContext.GetContextParameter<int>(RequestPropertyNames.BuildId);
+
+            return $"{organization}/{project}/_apis/build/builds/{buildId}";
         }
 
         protected override Method GetRequestMethod()
         {
-            return Method.DELETE;
+            return Method.Delete;
         }
     }
 }

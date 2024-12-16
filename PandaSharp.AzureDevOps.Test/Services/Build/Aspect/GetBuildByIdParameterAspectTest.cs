@@ -1,42 +1,35 @@
-﻿using Moq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using PandaSharp.AzureDevOps.Services.Build.Aspect;
 using RestSharp;
+using Shouldly;
 
 namespace PandaSharp.AzureDevOps.Test.Services.Build.Aspect
 {
     [TestFixture]
     public sealed class GetBuildByIdParameterAspectTest
     {
-        private Mock<IRestRequest> _restRequestMock;
-
-        [SetUp]
-        public void SetUp()
-        {
-            _restRequestMock = new Mock<IRestRequest>();
-            _restRequestMock
-                .Setup(i => i.AddQueryParameter(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(_restRequestMock.Object);
-        }
-
         [Test]
         public void SetPropertiesFilterTest()
         {
+            var request = new RestRequest();
+
             var aspect = new GetBuildByIdParameterAspect();
             aspect.SetPropertiesFilter("propertiesFilter");
-            aspect.ApplyToRestRequest(_restRequestMock.Object);
-            
-            _restRequestMock.Verify(i => i.AddQueryParameter("propertyFilters", "propertiesFilter"), Times.Once);
-            _restRequestMock.VerifyNoOtherCalls();
+            aspect.ApplyToRestRequest(request);
+
+            request.Parameters.Count.ShouldBe(1);
+            request.Parameters.Exists(new QueryParameter("propertyFilters", "propertiesFilter")).ShouldBeTrue();
         }
 
         [Test]
         public void DefaultParameterAspectTest()
         {
-            var aspect = new GetBuildByIdParameterAspect();
-            aspect.ApplyToRestRequest(_restRequestMock.Object);
+            var request = new RestRequest();
 
-            _restRequestMock.VerifyNoOtherCalls();
+            var aspect = new GetBuildByIdParameterAspect();
+            aspect.ApplyToRestRequest(request);
+
+            request.Parameters.ShouldBeEmpty();
         }
     }
 }
